@@ -329,6 +329,18 @@ void usercontrol(void) {
         huptake = false;
         hdowntake = false;
       }
+      if (Controller1.ButtonUp.pressing()){
+        backIntake.spin(forward,100,percent);
+        middleIntake.spin(forward,100,percent);
+      }else if(Controller1.ButtonDown.pressing()){
+        backIntake.spin(forward,-100,percent);
+        middleIntake.spin(forward,-100,percent);
+      }else{
+        backIntake.spin(forward,0,percent);
+        middleIntake.spin(forward,0,percent);
+      
+      }
+      
     }
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
