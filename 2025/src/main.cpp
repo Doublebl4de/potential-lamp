@@ -278,7 +278,7 @@ void hintake(double power){
 
 
 void autonomous(void) {
-
+  //  go()
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
@@ -292,54 +292,24 @@ void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
     drive(Controller1.Axis3.position(),Controller1.Axis2.position());
-    if (not (huptake or hdowntake)){
-      if (Controller1.ButtonL1.pressing() and not (muptake and mdowntake) ){
-        mintake(100);
-        muptake = true;
-        if (not Controller1.ButtonL2.pressing()){
-          mdowntake = false;
-        }
-      }else if (Controller1.ButtonL2.pressing() and not (muptake and mdowntake)){
-        mintake(-100);
-        mdowntake = true;
-        if (not Controller1.ButtonL1.pressing()){
-          muptake = false;
-        }
-      }else{
-        mintake(0);
-        muptake = false;
-        mdowntake = false;
+    if (Controller1.ButtonL1.pressing() or Controller1.ButtonR1.pressing()){
+      middleIntake.spin(forward,100,percent);
+      if (Controller1.ButtonL1.pressing()){
+        frontIntake.spin(forward,-100,percent);
+      }else if(Controller1.ButtonR1.pressing()){
+        frontIntake.spin(forward,100,percent);
       }
+    }else if (Controller1.ButtonL2.pressing() or Controller1.ButtonR2.pressing()){
+      middleIntake.spin(forward,-100,percent);
+      if (Controller1.ButtonL1.pressing()){
+        frontIntake.spin(forward,-100,percent);
+      }else if(Controller1.ButtonR1.pressing()){
+        frontIntake.spin(forward,-100,percent);
+      }
+    }else{
+      middleIntake.spin(forward,0,percent);
+      frontIntake.spin(forward,0,percent);
     }
-    if (not (muptake or mdowntake)){
-      if (Controller1.ButtonR1.pressing() and not (huptake and hdowntake)){
-        hintake(100);
-        huptake = true;
-        if (not Controller1.ButtonR2.pressing()){
-          hdowntake = false;
-        }
-      }else if (Controller1.ButtonR2.pressing() and not (huptake and hdowntake)){
-        hintake(-100);
-        hdowntake = true;
-        if (not Controller1.ButtonR1.pressing()){
-          huptake = false;
-        }
-      }else{
-        hintake(0);
-        huptake = false;
-        hdowntake = false;
-      }
-      if (Controller1.ButtonUp.pressing()){
-        backIntake.spin(forward,100,percent);
-        middleIntake.spin(forward,100,percent);
-      }else if(Controller1.ButtonDown.pressing()){
-        backIntake.spin(forward,-100,percent);
-        middleIntake.spin(forward,-100,percent);
-      }else{
-        backIntake.spin(forward,0,percent);
-        middleIntake.spin(forward,0,percent);
-      
-      }
       
     }
     // This is the main execution loop for the user control program.
