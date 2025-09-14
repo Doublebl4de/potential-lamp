@@ -21,6 +21,7 @@
 // backIntake           motor         17              
 // middleIntake         motor         7               
 // frontIntake          motor         5               
+// bar                  digital_out   A               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -108,6 +109,7 @@ void go(double dist, double power){
       time ++;
     }
     if (time >= 10){
+      drive(0,0);
       break;
     }
     double left_average = ((leftFrontDrive.velocity(percent)+leftMiddleDrive.velocity(percent)+leftBackDrive.velocity(percent))/3);
@@ -130,8 +132,8 @@ void turn(double target, double power){
     double error = target - gyroZeppeli.rotation();
     int output = clip_num(error * proportionalControllerConstant, power, -power);
     drive(output,-output);
-    if(abs(leftBackDrive.velocity(percent)) < 7 and abs(rightBackDrive.velocity(percent)) < 7){
-      time += 10;
+    if(abs(leftBackDrive.velocity(percent)) < 2 and abs(rightBackDrive.velocity(percent)) < 2){
+      time += 0;
     } else {
       time = 0;
     }
@@ -147,6 +149,7 @@ void turn(double target, double power){
     Brain.Screen.clearScreen();
     Brain.Screen.clearLine();
     Brain.Screen.print(error);
+    Brain.Screen.print(gyroZeppeli.rotation());
     wait(0.1,seconds);
   }
 }
@@ -278,7 +281,29 @@ void hintake(double power){
 
 
 void autonomous(void) {
-  //  go()
+  turn(90,100);
+  /*
+  bar.set(true);
+  go(29.5,100);
+  turn(90,100);
+  go(14,100);
+  */
+  /*
+  middleIntake.spin(forward,100,percent);
+  wait(2,sec);
+  middleIntake.stop();
+  go(-5,100);
+  turn(180,100);
+  go(24,100);
+  middleIntake.spin(forward,100,percent);
+  frontIntake.spin(forward,-100,percent);
+  wait(4,sec);
+  go(-8,100);
+  turn(-45,100);
+  middleIntake.spin(forward,100,percent);
+  go(24,100);
+  frontIntake.spin(forward,-100,percent);
+  */
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
@@ -288,8 +313,11 @@ bool muptake = false;
 bool mdowntake = false;
 bool huptake = false;
 bool hdowntake = false;
+bool barUp = false;
+bool barDown = true;
 void usercontrol(void) {
   // User control code here, inside the loop
+  bar.set(false);
   while (1) {
     drive(Controller1.Axis3.position(),Controller1.Axis2.position());
     if (Controller1.ButtonL1.pressing() or Controller1.ButtonR1.pressing()){
@@ -310,7 +338,11 @@ void usercontrol(void) {
       middleIntake.spin(forward,0,percent);
       frontIntake.spin(forward,0,percent);
     }
-      
+    if (Controller1.ButtonUp.pressing()){
+      bar.set(false);
+    } else if(Controller1.ButtonDown.pressing()){
+      bar.set(true);
+    }
     }
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
@@ -324,7 +356,7 @@ void usercontrol(void) {
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
   }
-}
+
 
 //
 // Main will set up the competition functions and callbacks.
