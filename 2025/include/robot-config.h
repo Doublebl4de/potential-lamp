@@ -14,6 +14,7 @@ extern inertial gyroZeppeli;
 extern motor backIntake;
 extern motor middleIntake;
 extern motor frontIntake;
+extern digital_out bar;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
