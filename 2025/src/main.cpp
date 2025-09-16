@@ -281,17 +281,17 @@ void hintake(double power){
 
 
 void autonomous(void) {
-  turn(90,100);
-  /*
+  //turn(90,100);
+  
   bar.set(true);
   go(29.5,100);
   turn(90,100);
   go(14,100);
-  */
-  /*
+  go(-5,100);
   middleIntake.spin(forward,100,percent);
-  wait(2,sec);
+  wait(1,sec);
   middleIntake.stop();
+  /*
   go(-5,100);
   turn(180,100);
   go(24,100);
