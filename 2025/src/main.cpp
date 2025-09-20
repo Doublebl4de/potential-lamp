@@ -108,7 +108,7 @@ void go(double dist, double power){
       drive(0,0); //REDUNDANT
       time ++;
     }
-    if (time >= 10){
+    if (time >= 8){
       drive(0,0);
       break;
     }
@@ -127,7 +127,7 @@ void go(double dist, double power){
 }
 void turn(double target, double power){
   int time = 0;
-  double proportionalControllerConstant = 0.7;
+  double proportionalControllerConstant = 0.75;
   while(true){
     double error = target - gyroZeppeli.rotation();
     int output = clip_num(error * proportionalControllerConstant, power, -power);
@@ -140,7 +140,7 @@ void turn(double target, double power){
     if (abs(error) <= 2.5){
       time += 10;
     }
-    if (time >= 50){
+    if (time >= 40){
       drive(0,0);
       gyroZeppeli.setRotation(0, degrees);
 
@@ -283,14 +283,33 @@ void hintake(double power){
 void autonomous(void) {
   //turn(90,100);
   
-  bar.set(true);
   go(29.5,100);
-  turn(90,100);
-  go(14,100);
-  go(-5,100);
+  turn(-90,100);
+  go(18,100);
   middleIntake.spin(forward,100,percent);
-  wait(1,sec);
+  frontIntake.spin(forward,100,percent);
+  wait(2,sec);
   middleIntake.stop();
+  frontIntake.stop();
+  go(-18,100);
+  turn(180,100);
+  bar.set(true);
+  go(14,100);
+  wait(0.5,sec);
+  go(-10,100);
+  /*
+  go(14,100);
+  go(-10,100);
+  middleIntake.spin(forward,100,percent);
+  wait(1.5,sec);
+  middleIntake.stop();
+  go(10,100);
+  go(-10,100);
+  middleIntake.spin(forward,100,percent);
+  wait(1.5,sec);
+  middleIntake.stop();
+  */
+
   /*
   go(-5,100);
   turn(180,100);
