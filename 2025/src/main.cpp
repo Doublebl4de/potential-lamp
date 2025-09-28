@@ -17,7 +17,7 @@
 // rightMiddleDrive     motor         9               
 // rightBackDrive       motor         8               
 // Controller1          controller                    
-// gyroZeppeli          inertial      19              
+// gyroZeppeli          inertial      18              
 // backIntake           motor         17              
 // middleIntake         motor         7               
 // frontIntake          motor         5               
@@ -47,6 +47,7 @@ competition Competition;
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
+  gyroZeppeli.calibrate();
 
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
@@ -127,7 +128,7 @@ void go(double dist, double power){
 }
 void turn(double target, double power){
   int time = 0;
-  double proportionalControllerConstant = 0.75;
+  double proportionalControllerConstant = 0.5;
   while(true){
     double error = target - gyroZeppeli.rotation();
     int output = clip_num(error * proportionalControllerConstant, power, -power);
@@ -282,21 +283,47 @@ void hintake(double power){
 
 void autonomous(void) {
   //turn(90,100);
-  
+  wait(4,sec);
   go(29.5,100);
   turn(-90,100);
-  go(18,100);
+  middleIntake.spin(forward,25,percent);
+  frontIntake.spin(forward,25,percent);
+  go(19,100);
   middleIntake.spin(forward,100,percent);
   frontIntake.spin(forward,100,percent);
-  wait(2,sec);
+  wait(1,sec);
   middleIntake.stop();
   frontIntake.stop();
-  go(-18,100);
+  go(-19,100);
   turn(180,100);
   bar.set(true);
+  wait(0.4,sec);
+  middleIntake.spin(forward,15,percent);
   go(14,100);
-  wait(0.5,sec);
+  turn(0,100);
+  wait(0.20,sec);
   go(-10,100);
+  frontIntake.spin(forward,10,percent);
+  middleIntake.spin(forward,100,percent);
+  wait(0.55,sec);
+  middleIntake.spin(forward,15,percent);
+  go(16,100);
+  turn(0,100);
+  wait(0.20,sec);
+  go(-10,100);
+  go(2,100);
+  middleIntake.spin(forward,100,percent);
+  wait(0.55,sec);
+  middleIntake.spin(forward,15,percent);
+  go(16,100);
+  turn(0,100);
+  wait(0.20,sec);
+  go(-10,100);
+  go(2,100);
+  middleIntake.spin(forward,100,percent);
+  wait(0.55,sec);
+  middleIntake.stop();
+  
   /*
   go(14,100);
   go(-10,100);
@@ -339,22 +366,20 @@ void usercontrol(void) {
   bar.set(false);
   while (1) {
     drive(Controller1.Axis3.position(),Controller1.Axis2.position());
-    if (Controller1.ButtonL1.pressing() or Controller1.ButtonR1.pressing()){
-      middleIntake.spin(forward,100,percent);
-      if (Controller1.ButtonL1.pressing()){
-        frontIntake.spin(forward,-100,percent);
-      }else if(Controller1.ButtonR1.pressing()){
-        frontIntake.spin(forward,100,percent);
-      }
-    }else if (Controller1.ButtonL2.pressing() or Controller1.ButtonR2.pressing()){
+    
+    if (Controller1.ButtonL2.pressing()){
       middleIntake.spin(forward,-100,percent);
-      if (Controller1.ButtonL1.pressing()){
-        frontIntake.spin(forward,-100,percent);
-      }else if(Controller1.ButtonR1.pressing()){
-        frontIntake.spin(forward,-100,percent);
-      }
+    }else if(Controller1.ButtonL1.pressing()){
+      middleIntake.spin(forward,100,percent);
     }else{
       middleIntake.spin(forward,0,percent);
+    }
+    if (Controller1.ButtonR2.pressing()){
+      frontIntake.spin(forward,-100,percent);
+    }else if(Controller1.ButtonR1.pressing()){
+      frontIntake.spin(forward,100,percent);
+      
+    }else{
       frontIntake.spin(forward,0,percent);
     }
     if (Controller1.ButtonUp.pressing()){
@@ -362,7 +387,8 @@ void usercontrol(void) {
     } else if(Controller1.ButtonDown.pressing()){
       bar.set(true);
     }
-    }
+  }
+    
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
     // values based on feedback from the joysticks.
