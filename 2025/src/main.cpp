@@ -154,6 +154,34 @@ void turn(double target, double power){
     wait(0.1,seconds);
   }
 }
+void quickTurn(double target, double power){
+  int time = 0;
+  double proportionalControllerConstant = 0.5;
+  while(true){
+    double error = target - gyroZeppeli.rotation();
+    int output = clip_num(error * proportionalControllerConstant, power, -power);
+    drive(output,-output);
+    if(abs(leftBackDrive.velocity(percent)) < 2 and abs(rightBackDrive.velocity(percent)) < 2){
+      time += 0;
+    } else {
+      time = 0;
+    }
+    if (abs(error) <= 5){
+      time += 10;
+    }
+    if (time >= 20){
+      drive(0,0);
+      gyroZeppeli.setRotation(error, degrees);
+
+      break;
+    }
+    Brain.Screen.clearScreen();
+    Brain.Screen.clearLine();
+    Brain.Screen.print(error);
+    Brain.Screen.print(gyroZeppeli.rotation());
+    wait(0.1,seconds);
+  }
+}
 void rightSwing(double target, double power){
   int time = 0;
   double proportionalControllerConstant = 1.2;
@@ -283,7 +311,7 @@ void hintake(double power){
 
 void autonomous(void) {
   //turn(90,100);
-  wait(4,sec);
+  //wait(4,sec);
   go(29.5,100);
   turn(-90,100);
   middleIntake.spin(forward,25,percent);
@@ -300,15 +328,15 @@ void autonomous(void) {
   wait(0.4,sec);
   middleIntake.spin(forward,15,percent);
   go(14,100);
-  turn(0,100);
+  //quickTurn(0,100);
   wait(0.20,sec);
   go(-10,100);
-  frontIntake.spin(forward,10,percent);
+  //frontIntake.spin(forward,10,percent);
   middleIntake.spin(forward,100,percent);
   wait(0.55,sec);
   middleIntake.spin(forward,15,percent);
   go(16,100);
-  turn(0,100);
+  //quickTurn(0,100);
   wait(0.20,sec);
   go(-10,100);
   go(2,100);
@@ -316,13 +344,15 @@ void autonomous(void) {
   wait(0.55,sec);
   middleIntake.spin(forward,15,percent);
   go(16,100);
-  turn(0,100);
+  //quickTurn(0,100);
   wait(0.20,sec);
   go(-10,100);
   go(2,100);
   middleIntake.spin(forward,100,percent);
-  wait(0.55,sec);
+  wait(0.30,sec);
   middleIntake.stop();
+  frontIntake.stop();
+  turn(0,100);
   
   /*
   go(14,100);
@@ -360,12 +390,25 @@ bool mdowntake = false;
 bool huptake = false;
 bool hdowntake = false;
 bool barUp = false;
-bool barDown = true;
+bool bardown = false;
+bool ispressingbar = false;
+bool reversedir = false;
+bool reversepress = false;
 void usercontrol(void) {
   // User control code here, inside the loop
   bar.set(false);
   while (1) {
-    drive(Controller1.Axis3.position(),Controller1.Axis2.position());
+    if (reversedir == false){
+      drive(Controller1.Axis3.position(),Controller1.Axis2.position());
+    }else if (reversedir == true){
+      drive(-Controller1.Axis2.position(),-Controller1.Axis3.position());
+    }
+    if (Controller1.ButtonX.pressing() == true and reversepress == false){
+      reversedir = not reversedir;
+      reversepress = true;
+    }else if (Controller1.ButtonX.pressing() == false){
+      reversepress = false;
+    }
     
     if (Controller1.ButtonL2.pressing()){
       middleIntake.spin(forward,-100,percent);
@@ -383,10 +426,24 @@ void usercontrol(void) {
       frontIntake.spin(forward,0,percent);
     }
     if (Controller1.ButtonUp.pressing()){
-      bar.set(false);
-    } else if(Controller1.ButtonDown.pressing()){
-      bar.set(true);
+      if (ispressingbar == false){
+        ispressingbar = true;
+        barUp = not barUp;
+      }
     }
+    else if(Controller1.ButtonUp.pressing() == false){
+      ispressingbar = false;
+    }
+    if (barUp == true and bardown == false){
+      bardown = true;
+      bar.set(true);
+
+    }else if(barUp == false){
+      bardown = false;
+      bar.set(false);
+    }
+    
+  
   }
     
     // This is the main execution loop for the user control program.
